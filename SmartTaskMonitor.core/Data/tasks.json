@@ -1,0 +1,26 @@
+[
+  {
+    "Id": 1,
+    "Name": "DataBackup",
+    "Status": "Success",
+    "DurationSeconds": 43.5,
+    "LastRun": "2025-10-30T10:15:00",
+    "ErrorCount": 0
+  },
+  {
+    "Id": 2,
+    "Name": "PrinterDiagnostics",
+    "Status": "Failed",
+    "DurationSeconds": 15.2,
+    "LastRun": "2025-10-30T09:00:00",
+    "ErrorCount": 3
+  },
+  {
+    "Id": 3,
+    "Name": "NetworkPingTest",
+    "Status": "Warning",
+    "DurationSeconds": 5.9,
+    "LastRun": "2025-10-30T10:40:00",
+    "ErrorCount": 1
+  }
+]
