@@ -12,7 +12,7 @@ namespace SmartTaskMonitor.Core
         static void Main()
         {
             Console.WriteLine("=== Smart Task Monitor ===");
-            var tasks = LoadTasks();
+            var tasks = LoadTasks(); //Call LoadTasks function
 
             while (true)
             {
@@ -22,35 +22,39 @@ namespace SmartTaskMonitor.Core
                 Console.WriteLine("3 - Export tasks to CSV");
                 Console.WriteLine("4 - Exit");
 
+                //Gets user input and saves it in a variable
                 Console.Write("\nSelect option: ");
                 var input = Console.ReadLine();
 
                 switch (input)
                 {
                     case "1":
-                        DisplayTasks(tasks);
+                        DisplayTasks(tasks); //Displays all task data
                         break;
                     case "2":
-                        DisplayTasks(tasks.Where(t => t.Status == "Failed").ToList());
+                        DisplayTasks(tasks.Where(t => t.Status == "Failed").ToList()); //Displays data on failed tasks
                         break;
                     case "3":
-                        ExportToCsv(tasks);
+                        ExportToCsv(tasks); //Exports data to .csv file
+                        Console.WriteLine("Data has been exported");
                         break;
                     case "4":
-                        return;
+                        return; //Exits program
                     default:
-                        Console.WriteLine("Invalid option. Try again.");
+                        Console.WriteLine("Invalid option. Try again."); //Case for invalid input
                         break;
                 }
             }
         }
 
+        //Function uses TaskLog.cs file to create a list based on the mock data in tasks.json
         static List<TaskLog> LoadTasks()
         {
             var json = File.ReadAllText("Data/tasks.json");
             return JsonSerializer.Deserialize<List<TaskLog>>(json) ?? new List<TaskLog>();
         }
 
+        //Function displays tasks by writing to console
         static void DisplayTasks(List<TaskLog> tasks)
         {
             Console.WriteLine("\nID | Name               | Status  | Duration | Errors | Last Run");
@@ -62,6 +66,7 @@ namespace SmartTaskMonitor.Core
             }
         }
 
+        //Function exports data to a .csv file
         static void ExportToCsv(List<TaskLog> tasks)
         {
             string path = "Data/export.csv";
