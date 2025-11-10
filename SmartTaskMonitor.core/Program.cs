@@ -4,12 +4,15 @@ using System.Collections.Generic;
 using System.Text.Json;
 using SmartTaskMonitor.Core.Models;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SmartTaskMonitor.Core
 {
     class Program
     {
-        static void Main()
+        static async Task Main()
         {
             Console.WriteLine("=== Smart Task Monitor ===");
             var tasks = LoadTasks(); //Call LoadTasks function
@@ -29,7 +32,7 @@ namespace SmartTaskMonitor.Core
                 switch (input)
                 {
                     case "1":
-                        DisplayTasks(tasks); //Displays all task data
+                        await DisplayTasksWithPrediction(tasks); //Displays data with AI prediction
                         break;
                     case "2":
                         DisplayTasks(tasks.Where(t => t.Status == "Failed").ToList()); //Displays data on failed tasks
@@ -79,6 +82,39 @@ namespace SmartTaskMonitor.Core
                 }
             }
             Console.WriteLine($"Exported to {path}");
+        }
+
+        //Integration with Python AI prediction model API
+        static async Task<double> GetFailurePrediction(TaskLog t)
+        {
+            using var client = new HttpClient();
+            var payload = new
+            {
+                DurationSeconds = t.DurationSeconds,
+                ErrorCount = t.ErrorCount,
+                LastRunDaysAgo = (DateTime.Now - t.LastRun).Days
+            };
+            var json = JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync("http://127.0.0.1:5001/predict", content);
+            var result = await response.Content.ReadAsStringAsync();
+
+            var doc = JsonDocument.Parse(result);
+            return doc.RootElement.GetProperty("failure_probability").GetDouble();
+        }
+
+        //Function displays tasks, including AI prediction data, by writing to console
+        static async Task DisplayTasksWithPrediction(List<TaskLog> tasks)
+        {
+            Console.WriteLine("\nID | Name | Status | Predicted Failure Risk");
+            Console.WriteLine("---------------------------------------------");
+
+            foreach (var t in tasks)
+            {
+                double risk = await GetFailurePrediction(t);
+                Console.WriteLine($"{t.Id,2} | {t.Name,-15} | {t.Status,-7} | {risk:P0}");
+            }
         }
     }
 }
